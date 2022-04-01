@@ -1,53 +1,63 @@
 import json
 import logging
 
-from flask import request, jsonify
+from flask import request, jsonify, Blueprint
 
-from app import app
 from user import db
 from user.models import User
+from books.models import Books
 
 logging.basicConfig(filename='routes.log', level=logging.DEBUG,
                     format=f'%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
 
+user = Blueprint("user", __name__, url_prefix='/user')
 
-@app.route("/signup", methods=["POST"])
+
+@user.route("/signup", methods=["POST"])
 def signup():
-    print("Reach signup")
+    """
+    this method is for creating user info
+    :return: message is created or not
+    """
+    # print("Reach signup")
     try:
         if request.method == "POST":
             userdata = json.loads(request.data)
-            user_id = userdata.get('user_id')
             username = userdata.get('username')
             email = userdata.get('email')
             password = userdata.get("password")
-            if User.query.filter_by(username=username).first() or User.query.filter_by(
-                    user_id=user_id).first() or User.query.filter_by(email=email).first():
+            if User.query.filter_by(username=username).first() or User.query.filter_by(email=email).first():
+                print("Reach")
                 return jsonify({
                     "message": "duplicate found in username or userid or email "
                 })
-            else:
-                user = User(user_id, username, email, password)
-                db.session.add(user)
-                db.session.commit()
-                return jsonify({"message": "user is created "})
+            user = User(username=username, email=email, password=password)
+            db.session.add(user)
+            db.session.commit()
+            return jsonify({"message": "user is created "})
     except Exception as e:
-        app.logger.error(e)
+        logging.error(e)
+        return jsonify({"message": "Error "})
 
 
-@app.route("/signin", methods=["POST"])
+@user.route("/signin", methods=["POST"])
 def signin():
+    """
+    This method is used for signin purpose
+    :return: message if successful or unsuccessful
+    """
     try:
         if request.method == "POST":
             userdata = json.loads(request.data)
             username = userdata.get("username")
             password = userdata.get("password")
-            print(username, password)
+            # print(username, password)
             is_signin = User.query.filter_by(username=username, password=password).first()
-            print(is_signin)
-            if is_signin:
-                return jsonify({"message": "user signin successfully"})
-            else:
+            # print(is_signin)
+            if not is_signin:
                 return jsonify({"message": "user signin unsuccessful"})
+            return jsonify({"message": "user signin successfully"})
+
     except Exception as e:
-        app.logger.error(e)
+        logging.error(e)
+        return jsonify({"message": "Error"})
