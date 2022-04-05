@@ -4,9 +4,10 @@ import logging
 from flask import request, jsonify, Blueprint
 
 from user import db
-from user.models import User
+from user.email.email import create_msg
+from user.models import Users
 from books.models import Books
-
+from app import mail
 logging.basicConfig(filename='routes.log', level=logging.DEBUG,
                     format=f'%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
 
@@ -26,12 +27,12 @@ def signup():
             username = userdata.get('username')
             email = userdata.get('email')
             password = userdata.get("password")
-            if User.query.filter_by(username=username).first() or User.query.filter_by(email=email).first():
-                print("Reach")
+            if Users.query.filter_by(username=username).first() or Users.query.filter_by(email=email).first():
                 return jsonify({
                     "message": "duplicate found in username or userid or email "
                 })
-            user = User(username=username, email=email, password=password)
+            user = Users(username=username, email=email, password=password)
+            mail.send(create_msg(email))
             db.session.add(user)
             db.session.commit()
             return jsonify({"message": "user is created "})
@@ -52,7 +53,7 @@ def signin():
             username = userdata.get("username")
             password = userdata.get("password")
             # print(username, password)
-            is_signin = User.query.filter_by(username=username, password=password).first()
+            is_signin = Users.query.filter_by(username=username, password=password).first()
             # print(is_signin)
             if not is_signin:
                 return jsonify({"message": "user signin unsuccessful"})

@@ -6,7 +6,7 @@ class Books(db.Model):
     book_name = db.Column(db.String(100), nullable=False)
     author = db.Column(db.String(100), nullable=False)
     price = db.Column(db.Float, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
 
     def __init__(self, book_name, author, price, user_id):
         self.book_name = book_name
