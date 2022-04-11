@@ -1,7 +1,8 @@
 def get_format(list_tuple):
     order_list = []
     for j in list_tuple:
-        order_list.append((j[10], j[9], j[7]))
+        order_list.append((j[5], j[8], j[7]))
+    print(order_list)
     order_list = list(set(order_list))
     mylist = list()
     for x in range(0, len(order_list)):
@@ -9,12 +10,14 @@ def get_format(list_tuple):
         new_list = []
         bo_id = order_list[x][0]
         for i in list_tuple:
-            if int(bo_id) == int(i[5]):
+            # print(i[5])
+            if bo_id == i[5]:
                 a = {
                     "book_id": i[0],
-                    "quantity": i[15],
-                    "book_name": i[1],
+                    "quantity": i[13],
+                    "book_name": i[1]
                 }
+                print(a)
                 new_list.append(a)
         order_dict.update({
             "order_id": bo_id,
@@ -23,4 +26,5 @@ def get_format(list_tuple):
             "order_items": new_list
         })
         mylist.append(order_dict)
+        # print(mylist)
     return mylist

@@ -1,7 +1,7 @@
 from flask_mail import Mail
 
 from books.routes import book
-from orders.order import orders
+from orders.routes import orders
 from user import app
 
 

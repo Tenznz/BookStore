@@ -19,15 +19,18 @@ def get():
     try:
         order_data = json.loads(request.data)
         user_id = order_data.get('user_id')
-        cur.execute(f"select * from books b,orders o,order_item oi where b.book_id=oi.book_id and "
+        cur.execute(f"select * from books b,orders o,order_items oi where b.book_id=oi.book_id and "
                     f"oi.order_id=o.order_id and oi.user_id={user_id}")
+
         conn.commit()
         list_order = cur.fetchall()
-        order_info = get_format(list_order)
-        if list(list_order) is None:
+        print(list_order)
+        if not list_order:
             return {
-                "message": "order_id not found"
+                "message": "user_id not found"
             }
+        order_info = get_format(list_order)
+
         return {
             "user_id": user_id,
             "order_list": order_info
@@ -35,11 +38,11 @@ def get():
     except Exception as e:
         logging.error(e)
         return {
-            "message": "error"
+            "message": str(e)
         }
 
 
-@orders.route("/create", methods=["POST"])
+@orders.route("/add", methods=["POST"])
 def post():
     try:
         order_dict = json.loads(request.data)
@@ -48,17 +51,16 @@ def post():
         status = order_dict.get("status")
         book_dic = order_dict.get("book_list")
         total_price = order_dict.get("total_price")
-        print(type(sum(book_dic.values())))
         total_quantity = sum(book_dic.values())
         cur.execute("insert into orders (order_id,user_id,total_quantity,total_price,status) values(%s,%s,%s,%s,%s)",
                     (order_id, user_id, total_quantity, total_price, status))
         conn.commit()
-        print("1")
+        # print("1")
         for i in book_dic:
-            print("2")
-            cur.execute("insert into order_item (order_id,book_id,user_id,quantity,status) values(%s,%s,%s,%s,%s)",
-                        (order_id, int(i), user_id, book_dic[i], status))
-        conn.commit()
+            print(i)
+            cur.execute("insert into order_items (book_id,user_id,quantity,order_id) values(%s,%s,%s,%s)",
+                        (int(i), user_id, book_dic[i], order_id))
+            conn.commit()
         return {
             "message": "successfully"
         }
@@ -74,7 +76,7 @@ def delete():
     try:
         order_data = json.loads(request.data)
         order_id = order_data.get('order_id')
-        cur.execute(f"select order_item_id,book_id from order_item where order_id={order_id};")
+        cur.execute(f"select order_items_id,book_id from order_items where order_id={order_id};")
         conn.commit()
         order_tuple = cur.fetchall()
         if len(order_tuple) == 0:
@@ -82,7 +84,7 @@ def delete():
                 "order_id": order_id,
                 "message": "data not found"
             }
-        cur.execute(f"delete from order_item where order_id = {order_id}")
+        cur.execute(f"delete from order_items where order_id = {order_id}")
         cur.execute(f"delete from orders where order_id={order_id}")
         conn.commit()
 
@@ -92,7 +94,7 @@ def delete():
     except Exception as e:
         logging.error(e)
         return {
-            "message": "error"
+            "message": str(e)
         }
 
 
