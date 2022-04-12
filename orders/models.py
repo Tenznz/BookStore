@@ -10,7 +10,7 @@ class Orders(db.Model):
     total_quantity = db.Column(db.Integer, nullable=False)
     status = db.Column(db.Integer, nullable=False)
     user = relationship("Users")
-    # order_item = relationship("Order_item", cascade="all, delete")
+    # order_item = relationship("Order_items", cascade="all, delete")
 
 
 class OrderItems(db.Model):

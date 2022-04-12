@@ -2,6 +2,9 @@ import json
 import logging
 
 from flask import Blueprint, request
+
+from books.models import Books
+from orders.utils import get_format
 from user import db
 
 from orders.models import Orders, OrderItems
@@ -65,6 +68,7 @@ def delete():
     try:
         request_data = json.loads(request.data)
         order_id = request_data.get("order_id")
+        # order_item = OrderItems.query.filter_by(order_id=order_id).delete()
         order_item = OrderItems.query.filter_by(order_id=order_id).all()
         for item in order_item:
             db.session.delete(item)
@@ -82,3 +86,23 @@ def delete():
             "error_message": str(e)
         }
 
+
+@order.route("/userid", methods=["GET"])
+def get_by_userid():
+    try:
+        request_data = json.loads(request.data)
+        user_id = request_data.get("user_id")
+        data = db.session.query(OrderItems, Orders, Books) \
+            .outerjoin(Orders, OrderItems.order_id == Orders.order_id) \
+            .outerjoin(Books, OrderItems.book_id == Books.book_id) \
+            .filter_by(user_id=user_id).all()
+        print(data)
+        order_list = get_format(data)
+        return {
+            "message": order_list
+        }
+    except Exception as e:
+        logging.error(e)
+        return {
+            "error_message": str(e)
+        }
