@@ -9,6 +9,8 @@ class Cart(db.Model):
     total_price = db.Column(db.Integer)
     status = db.Column(db.Integer)
     user_id = db.Column(db.Integer, db.ForeignKey("users.user_id"))
+    # created_at=db.Column(db.Date)
+    # is_deleted=db.Column(db.Integer)
     user = relationship("Users")
     cart_item = relationship("CartItem", cascade="all, delete")
 
