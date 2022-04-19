@@ -38,7 +38,7 @@ def signup():
             return jsonify({"message": "user is created "})
     except Exception as e:
         logging.error(e)
-        return jsonify({"message": "Error "})
+        return jsonify({"message": str(e)})
 
 
 @user.route("/signin", methods=["POST"])
@@ -61,4 +61,4 @@ def signin():
 
     except Exception as e:
         logging.error(e)
-        return jsonify({"message": "Error"})
+        return jsonify({"message": str(e)})

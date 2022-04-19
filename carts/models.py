@@ -20,6 +20,7 @@ class CartItem(db.Model):
     book_id = db.Column(db.Integer, db.ForeignKey("books.book_id"))
     user_id = db.Column(db.Integer, db.ForeignKey("users.user_id"))
     cart_id = db.Column(db.Integer, db.ForeignKey("cart.cart_id"))
+    quantity = db.Column(db.Integer)
     book = relationship("Books")
     user = relationship("Users")
-    cart = relationship("Cart")
+    cart = relationship("Cart", overlaps="cart_item")
